@@ -3,8 +3,8 @@ name: C++ CI/CD
 on:
   push:
     tags:
-      - 'v*'   # 只在打 tag (比如 v1.0.1) 时触发
-  workflow_dispatch: # 允许手动触发
+      - 'v*'
+  workflow_dispatch:
 
 permissions: write-all
 
@@ -28,7 +28,7 @@ jobs:
         with:
           cmake-version: "3.22.0"
 
-      - name: Setup C++ compiler
+      - name: Setup C++ compiler (Linux)
         if: matrix.os == 'ubuntu-latest'
         run: sudo apt-get install -y g++
 
@@ -38,5 +38,10 @@ jobs:
       - name: Build project
         run: cmake --build build --config Release
 
-      - name: Run program
-        run: ./build/hello || .\build\Release\hello.exe
+      - name: Run program (Linux)
+        if: matrix.os == 'ubuntu-latest'
+        run: ./build/hello
+
+      - name: Run program (Windows)
+        if: matrix.os == 'windows-latest'
+        run: .\build\Release\hello.exe
