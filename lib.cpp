@@ -2,7 +2,7 @@
 #include <fstream>
 #include <sstream>
 
-std::string getHelloMessage() {
+std::string getVersion() {
     std::ifstream file("version.txt");
     std::string version;
     if (file.is_open()) {
