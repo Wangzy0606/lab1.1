@@ -3,6 +3,6 @@
 
 #include <string>
 
-std::string getHelloMessage();
+std::string getVersion();
 
 #endif // LIB_H
