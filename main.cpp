@@ -2,6 +2,6 @@
 #include "lib.h"
 
 int main() {
-    std::cout << getHelloMessage() << std::endl;
+    std::cout << getVersion() << std::endl;
     return 0;
 }
