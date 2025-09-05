@@ -1,47 +1,45 @@
-name: C++ CI/CD
+name: Build and Run
 
+# 触发条件：支持标签推送、main分支推送和手动触发
 on:
   push:
     tags:
-      - 'v*'
-  workflow_dispatch:
-
-permissions: write-all
+      - 'v*'  # 匹配v1.0.0等标签
+    branches:
+      - main  # 当main分支有推送时触发
+  workflow_dispatch:  # 允许手动触发
 
 jobs:
   build:
-    name: Build on ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         os: [ubuntu-latest, windows-latest]
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Generate version.txt
-        run: echo "${{ github.ref_name }}" > version.txt
+    - name: Generate version.txt
+      run: |
+        # 根据触发类型设置版本号
+        if [[ "${{ github.ref_type }}" == "tag" ]]; then
+          # 如果是标签触发，使用标签名作为版本（如v1.0.0）
+          echo "${{ github.ref_name }}" > version.txt
+        elif [[ "${{ github.ref_name }}" == "main" ]]; then
+          # 如果是main分支触发，使用开发版本标识
+          echo "dev-${{ github.sha::8 }}" > version.txt
+        else
+          # 其他情况使用默认版本
+          echo "1.0.0" > version.txt
+        fi
+      shell: bash
 
-      - name: Setup CMake
-        uses: jwlawson/actions-setup-cmake@v2
-        with:
-          cmake-version: "3.22.0"
+    - name: Configure CMake
+      run: cmake -B ${{github.workspace}}/build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Setup C++ compiler (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: sudo apt-get install -y g++
+    - name: Build
+      run: cmake --build ${{github.workspace}}/build --config Release
 
-      - name: Configure project
-        run: cmake -B build
-
-      - name: Build project
-        run: cmake --build build --config Release
-
-      - name: Run program (Linux)
-        if: matrix.os == 'ubuntu-latest'
-        run: ./build/hello
-
-      - name: Run program (Windows)
-        if: matrix.os == 'windows-latest'
-        run: .\build\Release\hello.exe
+    - name: Run
+      run: ${{github.workspace}}/build/hello
+      shell: bash
