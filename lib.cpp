@@ -9,7 +9,7 @@ std::string getVersion() {
         std::getline(file, version);
         file.close();
     } else {
-        version = "1.0.0"; // 默认版本，避免文件缺失报错
+        version = "1.0.0";
     }
     return "Hello, World! Version " + version;
 }
